@@ -1,0 +1,75 @@
+import java.util.*;
+
+class DataManager {
+    private List<Integer> dataList;
+    private Stack<Integer> dataStack;
+    private Queue<Integer> dataQueue;
+    private Map<Integer, String> dataMap;
+
+    public DataManager() {
+        dataList = new ArrayList<>();
+        dataStack = new Stack<>();
+        dataQueue = new LinkedList<>();
+        dataMap = new HashMap<>();
+    }
+
+    public void addData(int key, String value) {
+        dataList.add(key);
+        dataStack.push(key);
+        dataQueue.offer(key);
+        dataMap.put(key, value);
+    }
+
+    public void displayData() {
+        System.out.println("ArrayList: " + dataList);
+        System.out.println("Stack (LIFO): " + dataStack);
+        System.out.println("Queue (FIFO): " + dataQueue);
+        System.out.println("HashMap: " + dataMap);
+    }
+}
+
+class DataProcessor extends Thread {
+    private DataManager dataManager;
+    private int start, end;
+
+    public DataProcessor(DataManager dataManager, int start, int end) {
+        this.dataManager = dataManager;
+        this.start = start;
+        this.end = end;
+    }
+
+    @Override
+    public void run() {
+        for (int i = start; i <= end; i++) {
+            dataManager.addData(i, "Value" + i);
+            try {
+                Thread.sleep(100); // Simulate processing time
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        DataManager dataManager = new DataManager();
+
+        // Create multiple threads to process data concurrently
+        Thread t1 = new DataProcessor(dataManager, 1, 5);
+        Thread t2 = new DataProcessor(dataManager, 6, 10);
+
+        t1.start();
+        t2.start();
+
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Display final results
+        dataManager.displayData();
+    }
+}
